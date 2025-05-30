@@ -15,7 +15,91 @@ namespace Notepad
 		public MainForm()
 		{
 			InitializeComponent();
-			findForm = new FindForm(richTextBox1);
+			this.AllowDrop = true;
+			richTextBox1.AllowDrop = true;
+			this.DragEnter += MainForm_DragEnter;
+			this.DragDrop += MainForm_DragDrop;
+			richTextBox1.DragEnter += RichTextBox1_DragEnter;
+			richTextBox1.DragDrop += RichTextBox1_DragDrop;
+			this.KeyPreview = true;
+			this.KeyDown += MainForm_KeyDown;
+		}
+
+		private void MainForm_DragEnter(object sender, DragEventArgs e)
+		{
+			if (e.Data.GetDataPresent(DataFormats.FileDrop))
+			{
+				e.Effect = DragDropEffects.Copy;
+			}
+		}
+
+		private void MainForm_DragDrop(object sender, DragEventArgs e)
+		{
+			string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
+			if (files != null && files.Length > 0)
+			{
+				OpenFile(files[0]);
+			}
+		}
+
+		private void RichTextBox1_DragEnter(object sender, DragEventArgs e)
+		{
+			if (e.Data.GetDataPresent(DataFormats.FileDrop))
+			{
+				e.Effect = DragDropEffects.Copy;
+			}
+		}
+
+		private void RichTextBox1_DragDrop(object sender, DragEventArgs e)
+		{
+			string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
+			if (files != null && files.Length > 0)
+			{
+				OpenFile(files[0]);
+			}
+		}
+
+		private void OpenFile(string filePath)
+		{
+			try
+			{
+				if (!CheckSaveChanges())
+				{
+					return;
+				}
+
+				richTextBox1.Text = File.ReadAllText(filePath);
+				currentFilePath = filePath;
+				isModified = false;
+				UpdateFormTitle();
+			}
+			catch (Exception ex)
+			{
+				MessageBox.Show($"无法打开文件: {ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+			}
+		}
+
+		private void MainForm_KeyDown(object sender, KeyEventArgs e)
+		{
+			if (e.Control && e.KeyCode == Keys.W)
+			{
+				e.Handled = true;
+				e.SuppressKeyPress = true;
+				CloseCurrentFile();
+			}
+		}
+
+		private void CloseCurrentFile()
+		{
+			if (!CheckSaveChanges())
+			{
+				return;
+			}
+
+			richTextBox1.Clear();
+			currentFilePath = null;
+			isModified = false;
+			UpdateFormTitle();
 		}
 
 		private void MainForm_Load(object sender, EventArgs e)

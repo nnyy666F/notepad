@@ -15,3 +15,4 @@ E:\nnyy\temp\project\c#\notepad\obj\Debug\net8.0-windows\notepad.genruntimeconfi
 E:\nnyy\temp\project\c#\notepad\obj\Debug\net8.0-windows\ref\notepad.dll
 E:\nnyy\temp\project\c#\notepad\obj\Debug\net8.0-windows\notepad.FindForm.resources
 E:\nnyy\temp\project\c#\notepad\obj\Debug\net8.0-windows\Notepad.MainForm.resources
+E:\nnyy\temp\project\c#\notepad\obj\Debug\net8.0-windows\Notepad.GoToForm.resources

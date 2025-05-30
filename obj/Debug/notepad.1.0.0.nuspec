@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
+  <metadata>
+    <id>notepad</id>
+    <version>1.0.0</version>
+    <authors>notepad</authors>
+    <description>Package Description</description>
+    <repository type="git" />
+    <dependencies>
+      <group targetFramework="net8.0-windows7.0" />
+    </dependencies>
+    <frameworkReferences>
+      <group targetFramework="net8.0-windows7.0">
+        <frameworkReference name="Microsoft.WindowsDesktop.App.WindowsForms" />
+      </group>
+    </frameworkReferences>
+  </metadata>
+  <files>
+    <file src="E:\nnyy\temp\project\c#\notepad\bin\Debug\net8.0-windows\notepad.runtimeconfig.json" target="lib\net8.0-windows7.0\notepad.runtimeconfig.json" />
+    <file src="E:\nnyy\temp\project\c#\notepad\bin\Debug\net8.0-windows\notepad.dll" target="lib\net8.0-windows7.0\notepad.dll" />
+  </files>
+</package>
