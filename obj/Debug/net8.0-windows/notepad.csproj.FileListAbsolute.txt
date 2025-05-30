@@ -1,0 +1,17 @@
+E:\nnyy\temp\project\c#\notepad\bin\Debug\net8.0-windows\notepad.exe
+E:\nnyy\temp\project\c#\notepad\bin\Debug\net8.0-windows\notepad.deps.json
+E:\nnyy\temp\project\c#\notepad\bin\Debug\net8.0-windows\notepad.runtimeconfig.json
+E:\nnyy\temp\project\c#\notepad\bin\Debug\net8.0-windows\notepad.dll
+E:\nnyy\temp\project\c#\notepad\bin\Debug\net8.0-windows\notepad.pdb
+E:\nnyy\temp\project\c#\notepad\obj\Debug\net8.0-windows\notepad.csproj.GenerateResource.cache
+E:\nnyy\temp\project\c#\notepad\obj\Debug\net8.0-windows\notepad.GeneratedMSBuildEditorConfig.editorconfig
+E:\nnyy\temp\project\c#\notepad\obj\Debug\net8.0-windows\notepad.AssemblyInfoInputs.cache
+E:\nnyy\temp\project\c#\notepad\obj\Debug\net8.0-windows\notepad.AssemblyInfo.cs
+E:\nnyy\temp\project\c#\notepad\obj\Debug\net8.0-windows\notepad.csproj.CoreCompileInputs.cache
+E:\nnyy\temp\project\c#\notepad\obj\Debug\net8.0-windows\notepad.dll
+E:\nnyy\temp\project\c#\notepad\obj\Debug\net8.0-windows\refint\notepad.dll
+E:\nnyy\temp\project\c#\notepad\obj\Debug\net8.0-windows\notepad.pdb
+E:\nnyy\temp\project\c#\notepad\obj\Debug\net8.0-windows\notepad.genruntimeconfig.cache
+E:\nnyy\temp\project\c#\notepad\obj\Debug\net8.0-windows\ref\notepad.dll
+E:\nnyy\temp\project\c#\notepad\obj\Debug\net8.0-windows\notepad.FindForm.resources
+E:\nnyy\temp\project\c#\notepad\obj\Debug\net8.0-windows\Notepad.MainForm.resources
