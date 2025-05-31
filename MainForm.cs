@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Text;
@@ -11,6 +12,12 @@ namespace Notepad
 		private string currentFilePath = null;
 		private bool isModified = false;
 		private FindForm findForm;
+		private float _initialFontSize;
+
+		private float currentZoom = 1.0f; // 初始缩放比例为100%
+		private const float zoomStep = 0.1f; // 缩放步长
+		private const float maxZoom = 5.0f; // 最大缩放比例为200%
+		private const float minZoom = 0.1f; // 最小缩放比例为50%
 
 		public MainForm()
 		{
@@ -26,6 +33,38 @@ namespace Notepad
 			richTextBox1.Font = new Font("宋体", 9);
 			richTextBox1.SuspendLayout();
 			richTextBox1.ResumeLayout();
+			this.richTextBox1.MouseWheel += new System.Windows.Forms.MouseEventHandler(this.richTextBox1_MouseWheel);
+			_initialFontSize = richTextBox1.Font.Size;
+			currentZoom = 1.0f;
+			UpdateZoomStatus();
+
+		}
+		private void richTextBox1_MouseWheel(object sender, MouseEventArgs e)
+		{
+			if ((Control.ModifierKeys & Keys.Control) == Keys.Control)
+			{
+				((HandledMouseEventArgs)e).Handled = true;
+
+				// 保存旧缩放值用于日志
+				float oldZoom = currentZoom;
+
+				if (e.Delta > 0) // 向上滚动：放大
+				{
+					currentZoom = Math.Min(currentZoom + zoomStep, maxZoom);
+				}
+				else if (e.Delta < 0) // 向下滚动：缩小
+				{
+					currentZoom = Math.Max(currentZoom - zoomStep, minZoom);
+				}
+
+				// 四舍五入到整数百分比避免浮点误差
+				currentZoom = (float)Math.Round(currentZoom, 2);
+
+				// 修正日志输出
+				Debug.WriteLine($"缩放更新: 之前={(int)(oldZoom * 100)}%, 之后={(int)(currentZoom * 100)}%");
+
+				ApplyZoom();
+			}
 		}
 
 		private void MainForm_DragEnter(object sender, DragEventArgs e)
@@ -119,6 +158,45 @@ namespace Notepad
 			UpdateStatusBar();
 		}
 
+		private void UpdateZoomStatus()
+		{
+			toolStripStatusLabelZoom.Text = $"缩放: {(int)(currentZoom * 100)}%";
+		}
+
+		private void ApplyZoom()
+		{
+			// 保存当前光标位置和选择范围
+			int selectionStart = richTextBox1.SelectionStart;
+			int selectionLength = richTextBox1.SelectionLength;
+
+			// 获取当前字体属性
+			Font currentFont = richTextBox1.Font;
+
+			// 基于初始字体大小计算新字体大小
+			float newSize = _initialFontSize * currentZoom;
+
+			// 设置最小字体大小限制（避免太小）
+			if (newSize < 6) newSize = 6;
+
+			// 创建新字体（保持原有字体名称和样式）
+			Font newFont = new Font(
+				currentFont.FontFamily,
+				newSize,
+				currentFont.Style,
+				currentFont.Unit
+			);
+
+			// 应用新字体
+			richTextBox1.Font = newFont;
+
+			// 恢复光标位置和选择范围
+			richTextBox1.SelectionStart = selectionStart;
+			richTextBox1.SelectionLength = selectionLength;
+
+			// 更新状态栏
+			UpdateZoomStatus();
+		}
+
 		private void UpdateStatusBar()
 		{
 			if (statusBarToolStripMenuItem.Checked)
@@ -126,6 +204,60 @@ namespace Notepad
 				int line = richTextBox1.GetLineFromCharIndex(richTextBox1.SelectionStart) + 1;
 				int col = richTextBox1.SelectionStart - richTextBox1.GetFirstCharIndexOfCurrentLine() + 1;
 				toolStripStatusLabel1.Text = $"行 {line}, 列 {col}";
+
+				// 更新文件编码信息
+				if (!string.IsNullOrEmpty(currentFilePath))
+				{
+					try
+					{
+						using (var reader = new System.IO.StreamReader(currentFilePath, true))
+						{
+							Encoding detectedEncoding = reader.CurrentEncoding;
+							toolStripStatusLabelEncoding.Text = $"编码: {detectedEncoding.EncodingName}";
+						}
+					}
+					catch (Exception)
+					{
+						toolStripStatusLabelEncoding.Text = "编码: 未知";
+					}
+				}
+				else
+				{
+					toolStripStatusLabelEncoding.Text = "编码: 无";
+				}
+
+				// 更新文件大小信息
+				if (!string.IsNullOrEmpty(currentFilePath))
+				{
+					try
+					{
+						System.IO.FileInfo fileInfo = new System.IO.FileInfo(currentFilePath);
+						long fileSize = fileInfo.Length;
+						string sizeText;
+						if (fileSize < 1024)
+						{
+							sizeText = $"{fileSize} 字节";
+						}
+						else if (fileSize < 1024 * 1024)
+						{
+							sizeText = $"{fileSize / 1024.0:F2} KB";
+						}
+						else
+						{
+							sizeText = $"{fileSize / (1024.0 * 1024):F2} MB";
+						}
+						toolStripStatusLabelFileSize.Text = $"大小: {sizeText}";
+					}
+					catch (Exception)
+					{
+						toolStripStatusLabelFileSize.Text = "大小: 未知";
+					}
+				}
+				else
+				{
+					toolStripStatusLabelFileSize.Text = "大小: 无";
+				}
+
 				statusStrip1.Visible = true;
 			}
 			else
@@ -177,7 +309,6 @@ namespace Notepad
 			}
 			return true;
 		}
-
 		private bool SaveFile()
 		{
 			if (string.IsNullOrEmpty(currentFilePath))
@@ -188,9 +319,10 @@ namespace Notepad
 			{
 				try
 				{
-					File.WriteAllText(currentFilePath, richTextBox1.Text, Encoding.UTF8);
+					System.IO.File.WriteAllText(currentFilePath, richTextBox1.Text);
 					isModified = false;
 					UpdateFormTitle();
+					UpdateStatusBar(); // 更新状态栏信息
 					return true;
 				}
 				catch (Exception ex)
@@ -267,10 +399,26 @@ namespace Notepad
 		{
 			NewFile();
 		}
-
 		private void openToolStripMenuItem_Click(object sender, EventArgs e)
 		{
-			OpenFile();
+			if (CheckSaveChanges())
+			{
+				if (openFileDialog1.ShowDialog() == DialogResult.OK)
+				{
+					currentFilePath = openFileDialog1.FileName;
+					try
+					{
+						richTextBox1.Text = System.IO.File.ReadAllText(currentFilePath);
+						isModified = false;
+						UpdateFormTitle();
+						UpdateStatusBar(); // 更新状态栏信息
+					}
+					catch (Exception ex)
+					{
+						MessageBox.Show($"打开文件时出错: {ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+					}
+				}
+			}
 		}
 
 		private void saveToolStripMenuItem_Click(object sender, EventArgs e)
@@ -361,9 +509,20 @@ namespace Notepad
 			if (fontDialog1.ShowDialog() == DialogResult.OK)
 			{
 				richTextBox1.SuspendLayout();
+
+				// 更新初始字体大小（用户新选择的字体大小）
+				_initialFontSize = fontDialog1.Font.Size;
+
+				// 重置缩放比例为100%
+				currentZoom = 1.0f;
+
 				richTextBox1.Font = fontDialog1.Font;
 				richTextBox1.ForeColor = fontDialog1.Color;
+
 				richTextBox1.ResumeLayout();
+
+				// 更新状态栏
+				UpdateZoomStatus();
 			}
 		}
 

@@ -3,6 +3,9 @@
 	partial class MainForm
 	{
 		private System.ComponentModel.IContainer components = null;
+		private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabelEncoding;
+		private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabelFileSize;
+		private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabelZoom;
 
 		protected override void Dispose(bool disposing)
 		{
@@ -64,6 +67,17 @@
 			this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
 			this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
 			this.fontDialog1 = new System.Windows.Forms.FontDialog();
+			this.toolStripStatusLabelEncoding = new System.Windows.Forms.ToolStripStatusLabel();
+			this.toolStripStatusLabelFileSize = new System.Windows.Forms.ToolStripStatusLabel();
+			this.toolStripStatusLabelZoom = new System.Windows.Forms.ToolStripStatusLabel();
+
+			this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+				this.toolStripStatusLabel1,
+				this.toolStripStatusLabelEncoding,
+				this.toolStripStatusLabelFileSize,
+				this.toolStripStatusLabelZoom
+			});
+
 			this.menuStrip1.SuspendLayout();
 			this.statusStrip1.SuspendLayout();
 			this.contextMenuStrip1.SuspendLayout();
@@ -471,6 +485,10 @@
 			this.contextMenuStrip1.ResumeLayout(false);
 			this.ResumeLayout(false);
 			this.PerformLayout();
+
+			this.toolStripStatusLabelZoom.Name = "toolStripStatusLabelZoom";
+			this.toolStripStatusLabelZoom.Size = new System.Drawing.Size(60, 17);
+			this.toolStripStatusLabelZoom.Text = "缩放: 100%";
 
 		}
 
