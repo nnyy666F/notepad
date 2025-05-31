@@ -45,7 +45,7 @@
 			this.btnFindNext.Name = "btnFindNext";
 			this.btnFindNext.Size = new System.Drawing.Size(75, 23);
 			this.btnFindNext.TabIndex = 2;
-			this.btnFindNext.Text = "查找下一个(&F)";
+			this.btnFindNext.Text = "下一个";
 			this.btnFindNext.UseVisualStyleBackColor = true;
 			this.btnFindNext.Click += new System.EventHandler(this.btnFindNext_Click);
 			// 

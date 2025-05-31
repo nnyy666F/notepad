@@ -1,26 +1,29 @@
-﻿using System;
+﻿using notepad;
+using System;
 using System.Windows.Forms;
 
 namespace Notepad
 {
 	public partial class ReplaceForm : Form
 	{
+		private TextSearchService searchService;
 		private RichTextBox textBox;
-		private FindForm findForm;
 
-		public ReplaceForm(RichTextBox textBox, FindForm findForm)
+		public ReplaceForm(RichTextBox textBox)
 		{
 			InitializeComponent();
 			this.textBox = textBox;
-			this.findForm = findForm;
-			txtFindWhat.Text = findForm.FindText;
-			chkMatchCase.Checked = findForm.MatchCase;
+			searchService = new TextSearchService(textBox);
+			this.TopMost = true;
 		}
+
 		private void btnFindNext_Click(object sender, EventArgs e)
 		{
-			findForm.FindText = txtFindWhat.Text;
-			findForm.MatchCase = chkMatchCase.Checked;
-			findForm.BtnFindNext.PerformClick();
+			if (!searchService.FindNext(txtFindWhat.Text, chkMatchCase.Checked, false))
+			{
+				MessageBox.Show("找不到\"" + txtFindWhat.Text + "\"", "查找",
+					MessageBoxButtons.OK, MessageBoxIcon.Information);
+			}
 		}
 		private void btnReplace_Click(object sender, EventArgs e)
 		{
@@ -35,7 +38,6 @@ namespace Notepad
 				btnFindNext_Click(sender, e);
 			}
 		}
-
 		private void btnReplaceAll_Click(object sender, EventArgs e)
 		{
 			if (string.IsNullOrEmpty(txtFindWhat.Text))
@@ -51,7 +53,6 @@ namespace Notepad
 
 			if (comparison == StringComparison.OrdinalIgnoreCase)
 			{
-				// 不区分大小写替换
 				int index = originalText.IndexOf(findText, comparison);
 				int count = 0;
 
@@ -77,7 +78,6 @@ namespace Notepad
 			}
 			else
 			{
-				// 区分大小写替换
 				string newText = originalText.Replace(findText, replaceText);
 				if (newText != originalText)
 				{

@@ -8,4 +8,10 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Compile Remove="temp\**" />
+    <EmbeddedResource Remove="temp\**" />
+    <None Remove="temp\**" />
+  </ItemGroup>
+
 </Project>

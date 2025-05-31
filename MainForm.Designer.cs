@@ -136,7 +136,7 @@
 			// 
 			this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
 			this.exitToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-			this.exitToolStripMenuItem.Text = "&编辑";
+			this.exitToolStripMenuItem.Text = "&退出";
 			this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
 			// 
 			// editToolStripMenuItem
@@ -187,7 +187,7 @@
 			this.cutToolStripMenuItem.Name = "cutToolStripMenuItem";
 			this.cutToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.X)));
 			this.cutToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-			this.cutToolStripMenuItem.Text = "C&ut";
+			this.cutToolStripMenuItem.Text = "&剪切";
 			this.cutToolStripMenuItem.Click += new System.EventHandler(this.cutToolStripMenuItem_Click);
 			// 
 			// copyToolStripMenuItem

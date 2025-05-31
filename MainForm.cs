@@ -23,6 +23,9 @@ namespace Notepad
 			richTextBox1.DragDrop += RichTextBox1_DragDrop;
 			this.KeyPreview = true;
 			this.KeyDown += MainForm_KeyDown;
+			richTextBox1.Font = new Font("宋体", 9);
+			richTextBox1.SuspendLayout();
+			richTextBox1.ResumeLayout();
 		}
 
 		private void MainForm_DragEnter(object sender, DragEventArgs e)
@@ -31,6 +34,15 @@ namespace Notepad
 			{
 				e.Effect = DragDropEffects.Copy;
 			}
+		}
+
+		public FindForm GetValidFindForm()
+		{
+			if (findForm == null || findForm.IsDisposed)
+			{
+				findForm = new FindForm(richTextBox1);
+			}
+			return findForm;
 		}
 
 		private void MainForm_DragDrop(object sender, DragEventArgs e)
@@ -281,7 +293,7 @@ namespace Notepad
 			if (richTextBox1.CanUndo)
 			{
 				richTextBox1.Undo();
-				richTextBox1.ClearUndo();
+				//richTextBox1.ClearUndo();
 			}
 		}
 
@@ -348,8 +360,10 @@ namespace Notepad
 
 			if (fontDialog1.ShowDialog() == DialogResult.OK)
 			{
+				richTextBox1.SuspendLayout();
 				richTextBox1.Font = fontDialog1.Font;
 				richTextBox1.ForeColor = fontDialog1.Color;
+				richTextBox1.ResumeLayout();
 			}
 		}
 
@@ -371,10 +385,11 @@ namespace Notepad
 
 		private void findToolStripMenuItem_Click(object sender, EventArgs e)
 		{
-			using (FindForm findForm = new FindForm(richTextBox1))
+			if (findForm == null || findForm.IsDisposed)
 			{
-				findForm.ShowDialog();
+				findForm = new FindForm(richTextBox1);
 			}
+			findForm.Show();
 		}
 
 		private void findNextToolStripMenuItem_Click(object sender, EventArgs e)
@@ -384,10 +399,8 @@ namespace Notepad
 
 		private void replaceToolStripMenuItem_Click(object sender, EventArgs e)
 		{
-			using (ReplaceForm replaceForm = new ReplaceForm(richTextBox1, findForm))
-			{
-				replaceForm.ShowDialog();
-			}
+			ReplaceForm replaceForm = new ReplaceForm(richTextBox1);
+			replaceForm.Show();
 		}
 
 		private void goToToolStripMenuItem_Click(object sender, EventArgs e)

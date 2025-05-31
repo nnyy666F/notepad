@@ -13,5 +13,17 @@
     <Compile Update="ReplaceForm.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Update="temp\FindForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="temp\GoToForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="temp\MainForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="temp\ReplaceForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
   </ItemGroup>
 </Project>
