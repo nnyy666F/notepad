@@ -1,4 +1,5 @@
-﻿namespace Notepad
+﻿
+namespace Notepad
 {
 	partial class MainForm
 	{
@@ -123,7 +124,7 @@
 			this.openToolStripMenuItem.Name = "openToolStripMenuItem";
 			this.openToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.O)));
 			this.openToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-			this.openToolStripMenuItem.Text = "&打开...";
+			this.openToolStripMenuItem.Text = "&打开";
 			this.openToolStripMenuItem.Click += new System.EventHandler(this.openToolStripMenuItem_Click);
 			// 
 			// saveToolStripMenuItem
@@ -138,7 +139,7 @@
 			// 
 			this.saveAsToolStripMenuItem.Name = "saveAsToolStripMenuItem";
 			this.saveAsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-			this.saveAsToolStripMenuItem.Text = "&另存为...";
+			this.saveAsToolStripMenuItem.Text = "&另存为";
 			this.saveAsToolStripMenuItem.Click += new System.EventHandler(this.saveAsToolStripMenuItem_Click);
 			// 
 			// toolStripSeparator1
@@ -237,7 +238,7 @@
 			this.findToolStripMenuItem.Name = "findToolStripMenuItem";
 			this.findToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.F)));
 			this.findToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-			this.findToolStripMenuItem.Text = "&查找...";
+			this.findToolStripMenuItem.Text = "&查找";
 			this.findToolStripMenuItem.Click += new System.EventHandler(this.findToolStripMenuItem_Click);
 			// 
 			// findNextToolStripMenuItem
@@ -245,7 +246,7 @@
 			this.findNextToolStripMenuItem.Name = "findNextToolStripMenuItem";
 			this.findNextToolStripMenuItem.ShortcutKeys = System.Windows.Forms.Keys.F3;
 			this.findNextToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-			this.findNextToolStripMenuItem.Text = "下一个";
+			this.findNextToolStripMenuItem.Text = "&下一个";
 			this.findNextToolStripMenuItem.Click += new System.EventHandler(this.findNextToolStripMenuItem_Click);
 			// 
 			// replaceToolStripMenuItem
@@ -253,7 +254,7 @@
 			this.replaceToolStripMenuItem.Name = "replaceToolStripMenuItem";
 			this.replaceToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.H)));
 			this.replaceToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-			this.replaceToolStripMenuItem.Text = "&替换...";
+			this.replaceToolStripMenuItem.Text = "&替换";
 			this.replaceToolStripMenuItem.Click += new System.EventHandler(this.replaceToolStripMenuItem_Click);
 			// 
 			// goToToolStripMenuItem
@@ -261,7 +262,7 @@
 			this.goToToolStripMenuItem.Name = "goToToolStripMenuItem";
 			this.goToToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.G)));
 			this.goToToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-			this.goToToolStripMenuItem.Text = "&跳转...";
+			this.goToToolStripMenuItem.Text = "&跳转";
 			this.goToToolStripMenuItem.Click += new System.EventHandler(this.goToToolStripMenuItem_Click);
 			// 
 			// toolStripSeparator4
@@ -307,7 +308,7 @@
 			// 
 			this.fontToolStripMenuItem.Name = "fontToolStripMenuItem";
 			this.fontToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-			this.fontToolStripMenuItem.Text = "&字体...";
+			this.fontToolStripMenuItem.Text = "&字体";
 			this.fontToolStripMenuItem.Click += new System.EventHandler(this.fontToolStripMenuItem_Click);
 			// 
 			// viewToolStripMenuItem

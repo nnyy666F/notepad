@@ -67,7 +67,7 @@
 			this.chkMatchCase.Name = "chkMatchCase";
 			this.chkMatchCase.Size = new System.Drawing.Size(83, 17);
 			this.chkMatchCase.TabIndex = 4;
-			this.chkMatchCase.Text = "区分大小写";
+			this.chkMatchCase.Text = "大小写";
 			this.chkMatchCase.UseVisualStyleBackColor = true;
 			// 
 			// chkSearchUp
@@ -77,7 +77,7 @@
 			this.chkSearchUp.Name = "chkSearchUp";
 			this.chkSearchUp.Size = new System.Drawing.Size(79, 17);
 			this.chkSearchUp.TabIndex = 5;
-			this.chkSearchUp.Text = "向上查找";
+			this.chkSearchUp.Text = "上一个";
 			this.chkSearchUp.UseVisualStyleBackColor = true;
 			// 
 			// FindForm

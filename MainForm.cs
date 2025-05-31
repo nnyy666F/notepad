@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
+using System.Security.Cryptography;
 using System.Text;
 using System.Windows.Forms;
 
@@ -13,11 +14,11 @@ namespace Notepad
 		private bool isModified = false;
 		private FindForm findForm;
 		private float _initialFontSize;
-
 		private float currentZoom = 1.0f; // 初始缩放比例为100%
 		private const float zoomStep = 0.1f; // 缩放步长
-		private const float maxZoom = 5.0f; // 最大缩放比例为200%
-		private const float minZoom = 0.1f; // 最小缩放比例为50%
+		private const float maxZoom = 5.0f; // 最大缩放比例为500%
+		private const float minZoom = 0.1f; // 最小缩放比例为10%
+		private string originalContent = string.Empty;
 
 		public MainForm()
 		{
@@ -37,8 +38,8 @@ namespace Notepad
 			_initialFontSize = richTextBox1.Font.Size;
 			currentZoom = 1.0f;
 			UpdateZoomStatus();
-
 		}
+
 		private void richTextBox1_MouseWheel(object sender, MouseEventArgs e)
 		{
 			if ((Control.ModifierKeys & Keys.Control) == Keys.Control)
@@ -48,11 +49,11 @@ namespace Notepad
 				// 保存旧缩放值用于日志
 				float oldZoom = currentZoom;
 
-				if (e.Delta > 0) // 向上滚动：放大
+				if (e.Delta > 0)
 				{
 					currentZoom = Math.Min(currentZoom + zoomStep, maxZoom);
 				}
-				else if (e.Delta < 0) // 向下滚动：缩小
+				else if (e.Delta < 0)
 				{
 					currentZoom = Math.Max(currentZoom - zoomStep, minZoom);
 				}
@@ -61,7 +62,7 @@ namespace Notepad
 				currentZoom = (float)Math.Round(currentZoom, 2);
 
 				// 修正日志输出
-				Debug.WriteLine($"缩放更新: 之前={(int)(oldZoom * 100)}%, 之后={(int)(currentZoom * 100)}%");
+				//Debug.WriteLine($"缩放更新: 之前={(int)(oldZoom * 100)}%, 之后={(int)(currentZoom * 100)}%");
 
 				ApplyZoom();
 			}
@@ -109,17 +110,15 @@ namespace Notepad
 				OpenFile(files[0]);
 			}
 		}
-
 		private void OpenFile(string filePath)
 		{
 			try
 			{
-				if (!CheckSaveChanges())
-				{
-					return;
-				}
+				if (!CheckSaveChanges()) return;
+				originalContent = File.ReadAllText(filePath);
+				//MessageBox.Show(originalContent, "提示", MessageBoxButtons.OK, MessageBoxIcon.Information);
+				richTextBox1.Text = originalContent;
 
-				richTextBox1.Text = File.ReadAllText(filePath);
 				currentFilePath = filePath;
 				isModified = false;
 				UpdateFormTitle();
@@ -127,6 +126,18 @@ namespace Notepad
 			catch (Exception ex)
 			{
 				MessageBox.Show($"无法打开文件: {ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+			}
+		}
+
+		private string CalculateMD5(string filePath)
+		{
+			using (var md5 = MD5.Create())
+			{
+				using (var stream = File.OpenRead(filePath))
+				{
+					var hashBytes = md5.ComputeHash(stream);
+					return BitConverter.ToString(hashBytes).Replace("-", "").ToLowerInvariant();
+				}
 			}
 		}
 
@@ -140,17 +151,28 @@ namespace Notepad
 			}
 		}
 
+		private void ResetFileState()
+		{
+			richTextBox1.Clear();
+			currentFilePath = null;
+			isModified = false;
+			originalContent = string.Empty; // 重置原始内容
+			UpdateFormTitle();
+		}
 		private void CloseCurrentFile()
 		{
+			if (IsContentUnchanged())
+			{
+				ResetFileState();
+				return;
+			}
+
 			if (!CheckSaveChanges())
 			{
 				return;
 			}
 
-			richTextBox1.Clear();
-			currentFilePath = null;
-			isModified = false;
-			UpdateFormTitle();
+			ResetFileState();
 		}
 
 		private void MainForm_Load(object sender, EventArgs e)
@@ -165,14 +187,13 @@ namespace Notepad
 
 		private void ApplyZoom()
 		{
+			// 暂停布局更新
+			richTextBox1.SuspendLayout();
+
 			// 保存当前光标位置和选择范围
 			int selectionStart = richTextBox1.SelectionStart;
 			int selectionLength = richTextBox1.SelectionLength;
-
-			// 获取当前字体属性
 			Font currentFont = richTextBox1.Font;
-
-			// 基于初始字体大小计算新字体大小
 			float newSize = _initialFontSize * currentZoom;
 
 			// 设置最小字体大小限制（避免太小）
@@ -185,16 +206,13 @@ namespace Notepad
 				currentFont.Style,
 				currentFont.Unit
 			);
-
-			// 应用新字体
 			richTextBox1.Font = newFont;
-
-			// 恢复光标位置和选择范围
 			richTextBox1.SelectionStart = selectionStart;
 			richTextBox1.SelectionLength = selectionLength;
-
-			// 更新状态栏
 			UpdateZoomStatus();
+
+			// 恢复布局更新
+			richTextBox1.ResumeLayout();
 		}
 
 		private void UpdateStatusBar()
@@ -205,7 +223,6 @@ namespace Notepad
 				int col = richTextBox1.SelectionStart - richTextBox1.GetFirstCharIndexOfCurrentLine() + 1;
 				toolStripStatusLabel1.Text = $"行 {line}, 列 {col}";
 
-				// 更新文件编码信息
 				if (!string.IsNullOrEmpty(currentFilePath))
 				{
 					try
@@ -226,7 +243,6 @@ namespace Notepad
 					toolStripStatusLabelEncoding.Text = "编码: 无";
 				}
 
-				// 更新文件大小信息
 				if (!string.IsNullOrEmpty(currentFilePath))
 				{
 					try
@@ -275,7 +291,7 @@ namespace Notepad
 
 		private void richTextBox1_TextChanged(object sender, EventArgs e)
 		{
-			if (!isModified)
+			if (!isModified && !IsContentUnchanged())
 			{
 				isModified = true;
 				UpdateFormTitle();
@@ -287,11 +303,12 @@ namespace Notepad
 		{
 			UpdateStatusBar();
 		}
-
 		private bool CheckSaveChanges()
 		{
-			if (isModified)
+			if (isModified && !IsContentUnchanged())
 			{
+				MessageBox.Show(richTextBox1.Text + "," + originalContent, "提示", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
+
 				DialogResult result = MessageBox.Show(
 					"是否保存更改？",
 					"记事本",
@@ -299,38 +316,62 @@ namespace Notepad
 					MessageBoxIcon.Question);
 
 				if (result == DialogResult.Yes)
-				{
 					return SaveFile();
-				}
 				else if (result == DialogResult.Cancel)
-				{
 					return false;
-				}
 			}
+
+			if (IsContentUnchanged())
+			{
+				isModified = false;
+			}
+
 			return true;
+		}
+
+		private bool IsContentUnchanged()
+		{
+			return richTextBox1.Text == originalContent;
+		}
+		private string CalculateMD5FromString(string input)
+		{
+			if (input == null)
+				input = string.Empty;
+
+			using (var md5 = MD5.Create())
+			{
+				byte[] inputBytes = Encoding.UTF8.GetBytes(input);
+				byte[] hashBytes = md5.ComputeHash(inputBytes);
+				return BitConverter.ToString(hashBytes).Replace("-", "").ToLowerInvariant();
+			}
 		}
 		private bool SaveFile()
 		{
 			if (string.IsNullOrEmpty(currentFilePath))
-			{
 				return SaveFileAs();
-			}
-			else
+
+			try
 			{
-				try
-				{
-					System.IO.File.WriteAllText(currentFilePath, richTextBox1.Text);
-					isModified = false;
-					UpdateFormTitle();
-					UpdateStatusBar(); // 更新状态栏信息
-					return true;
-				}
-				catch (Exception ex)
-				{
-					MessageBox.Show($"保存文件时出错: {ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
-					return false;
-				}
+				File.WriteAllText(currentFilePath, richTextBox1.Text);
+				isModified = false;
+
+				originalContent = richTextBox1.Text;
+
+				UpdateFormTitle();
+				UpdateStatusBar();
+				return true;
 			}
+			catch (Exception ex)
+			{
+				MessageBox.Show($"保存文件时出错: {ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+				return false;
+			}
+		}
+		private void NewFile()
+		{
+			if (!CheckSaveChanges()) return;
+
+			ResetFileState();
 		}
 
 		private bool SaveFileAs()
@@ -348,77 +389,6 @@ namespace Notepad
 				return SaveFile();
 			}
 			return false;
-		}
-
-		private void OpenFile()
-		{
-			if (!CheckSaveChanges())
-			{
-				return;
-			}
-
-			openFileDialog1.InitialDirectory = string.IsNullOrEmpty(currentFilePath) ?
-				Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) :
-				Path.GetDirectoryName(currentFilePath);
-
-			if (openFileDialog1.ShowDialog() == DialogResult.OK)
-			{
-				try
-				{
-					richTextBox1.Text = File.ReadAllText(openFileDialog1.FileName, Encoding.UTF8);
-					currentFilePath = openFileDialog1.FileName;
-					isModified = false;
-					UpdateFormTitle();
-				}
-				catch (Exception ex)
-				{
-					MessageBox.Show($"打开文件时出错: {ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
-				}
-			}
-		}
-
-		private void NewFile()
-		{
-			if (!CheckSaveChanges())
-			{
-				return;
-			}
-
-			richTextBox1.Clear();
-			currentFilePath = null;
-			isModified = false;
-			UpdateFormTitle();
-		}
-
-		private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
-		{
-			e.Cancel = !CheckSaveChanges();
-		}
-
-		private void newToolStripMenuItem_Click(object sender, EventArgs e)
-		{
-			NewFile();
-		}
-		private void openToolStripMenuItem_Click(object sender, EventArgs e)
-		{
-			if (CheckSaveChanges())
-			{
-				if (openFileDialog1.ShowDialog() == DialogResult.OK)
-				{
-					currentFilePath = openFileDialog1.FileName;
-					try
-					{
-						richTextBox1.Text = System.IO.File.ReadAllText(currentFilePath);
-						isModified = false;
-						UpdateFormTitle();
-						UpdateStatusBar(); // 更新状态栏信息
-					}
-					catch (Exception ex)
-					{
-						MessageBox.Show($"打开文件时出错: {ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
-					}
-				}
-			}
 		}
 
 		private void saveToolStripMenuItem_Click(object sender, EventArgs e)
@@ -539,7 +509,41 @@ namespace Notepad
 
 		private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
 		{
-			MessageBox.Show("记事本 1.0\n\n简单的文本编辑器", "关于", MessageBoxButtons.OK, MessageBoxIcon.Information);
+			MessageBox.Show("记事本 1.0\n\n这是一个简单的文本编辑器demo", "关于", MessageBoxButtons.OK, MessageBoxIcon.Information);
+		}
+
+		private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
+		{
+			e.Cancel = !CheckSaveChanges();
+		}
+
+		private void newToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			NewFile();
+		}
+
+		private void openToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			if (CheckSaveChanges())
+			{
+				if (openFileDialog1.ShowDialog() == DialogResult.OK)
+				{
+					currentFilePath = openFileDialog1.FileName;
+					try
+					{
+						richTextBox1.Text = System.IO.File.ReadAllText(currentFilePath);
+						isModified = false;
+						UpdateFormTitle();
+						UpdateStatusBar(); // 更新状态栏信息
+						originalContent = richTextBox1.Text;
+						//MessageBox.Show(originalContent, "提示", MessageBoxButtons.OK, MessageBoxIcon.Information);
+					}
+					catch (Exception ex)
+					{
+						MessageBox.Show($"打开文件时出错: {ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+					}
+				}
+			}
 		}
 
 		private void findToolStripMenuItem_Click(object sender, EventArgs e)
