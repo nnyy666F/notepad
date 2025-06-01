@@ -9,6 +9,12 @@ namespace Notepad
 		private TextSearchService searchService;
 		private RichTextBox textBox;
 
+		public string FindText
+		{
+			get { return txtFindWhat.Text; }
+			set { txtFindWhat.Text = value; }
+		}
+
 		public ReplaceForm(RichTextBox textBox)
 		{
 			InitializeComponent();

@@ -307,7 +307,7 @@ namespace Notepad
 		{
 			if (isModified && !IsContentUnchanged())
 			{
-				MessageBox.Show(richTextBox1.Text + "," + originalContent, "提示", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
+				//MessageBox.Show(richTextBox1.Text + "," + originalContent, "提示", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
 
 				DialogResult result = MessageBox.Show(
 					"是否保存更改？",
@@ -328,10 +328,13 @@ namespace Notepad
 
 			return true;
 		}
-
 		private bool IsContentUnchanged()
 		{
-			return richTextBox1.Text == originalContent;
+			// 统一换行符为 \n
+			string currentText = richTextBox1.Text.Replace("\r\n", "\n");
+			string originalText = originalContent.Replace("\r\n", "\n");
+
+			return currentText == originalText;
 		}
 		private string CalculateMD5FromString(string input)
 		{
@@ -552,6 +555,11 @@ namespace Notepad
 			{
 				findForm = new FindForm(richTextBox1);
 			}
+			string selectedText = GetSelectedText();
+			if (!string.IsNullOrEmpty(selectedText))
+			{
+				findForm.FindText = selectedText;
+			}
 			findForm.Show();
 		}
 
@@ -563,6 +571,11 @@ namespace Notepad
 		private void replaceToolStripMenuItem_Click(object sender, EventArgs e)
 		{
 			ReplaceForm replaceForm = new ReplaceForm(richTextBox1);
+			string selectedText = GetSelectedText();
+			if (!string.IsNullOrEmpty(selectedText))
+			{
+				replaceForm.FindText = selectedText;
+			}
 			replaceForm.Show();
 		}
 
@@ -572,6 +585,15 @@ namespace Notepad
 			{
 				goToForm.ShowDialog();
 			}
+		}
+
+		private string GetSelectedText()
+		{
+			if (richTextBox1.SelectionLength > 0)
+			{
+				return richTextBox1.SelectedText;
+			}
+			return string.Empty;
 		}
 	}
 }
